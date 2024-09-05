@@ -16,7 +16,7 @@ function encOID () { #returns HEX BER OID e.g. echo "2.5.4.3" | encOID -> 550403
 }
 
 function ASN1wrap () { # returns HEX BER ASN1Tag.ASN1Len.<stdin>; e.g. echo "550403" | ASN1wrap 06 -> 0603550403 ; 06=OID 0c=UTF8String 30=SEQUENCE 31=SET
-  awk -v t="$1" '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256),l);printf(lh);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("%s%s%s",t,lh,$1)}'
+  awk -v t="$1" '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256)+128,l);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("%s%s%s",t,lh,$1)}'
 }
 
 function tolower () { # Not sure if OSSL converts all UTF8 upper to lower (does e.g. Ĥ -> ĥ ?) but a quick eyeball of the code shows case_change to lower case is defined along the lines of: c=ifupper(c)?(c^\0x40);
@@ -27,7 +27,7 @@ function tolower () { # Not sure if OSSL converts all UTF8 upper to lower (does 
 
 function stripspace () { # Remove leading and trailingspace; convert and deduplicate duplicate remaining spaces to \x20
                          # OSSL defines these as "CTYPE_MASK_space"= {\t\n\v\f\r\x20} + {\b} :- 08 09 0a 0b 0c 0d 20
-  sed -e 's/\(..\)/\1 /g' -e 's/^\(..\) \([0-7].\|80\)/\1\2/' -e 's/^\(..\) \(81\) \(..\)/\1\2\3/' -e 's/^\(..\) \(82\) \(..\) \(..\)/\1\2\3\4/' -e 's/ \(20\|08\|09\|0[aA]\|0[bB]\|0[cC]\|0[dD]\|20\)/ 20/g' -e 's/\( 20\)\{2,\}/ 20/g' -e 's/^\(....\)\( 20\)\{1,\}/\1/' -e 's/\( 20\)\{1,\} *$//' -e 's/ //g' -e 's/\(..\)\(..\)/\1 \2 /' | while read type len data ; do echo $data | ASN1wrap $type ; done
+  sed -e 's/\(..\)/\1 /g' -e 's/^\(..\) \([0-7].\|80\)/\1\2/' -e 's/^\(..\) \(81\) \(..\)/\1\2\3/' -e 's/^\(..\) \(82\) \(..\) \(..\)/\1\2\3\4/' -e 's/ \(20\|08\|09\|0[aA]\|0[bB]\|0[cC]\|0[dD]\|20\)/ 20/g' -e 's/\( 20\)\{2,\}/ 20/g' -e 's/^\(..[0-7].\|..80\|..81..\|..82....\)\( 20\)\{1,\}/\1/' -e 's/\( 20\)\{1,\} *$//' -e 's/ //g' -e 's/^\(..\)\([0-7].\|80\|81..\|82....\)/\1 \2 /' | while read type len data ; do echo $data | ASN1wrap $type ; done
 }
 
 function hextochar () {
