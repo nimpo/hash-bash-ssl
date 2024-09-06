@@ -34,13 +34,30 @@ function hextochar () {
   sed -e 's/\(..\)/\\\\x\1/g' |xargs -i echo -ne '{}'
 }
 
+function digest() {
+
+  if [ "$1" = "y" ] 
+  then
+    md5sum 
+  else
+    sha1sum
+  fi
+}
+
+[ "$1" = "-old" ] && OLD="y" && shift
+
 # First use openssl to do most of the leg work; spit the subject out with as much BER work done for us as possible
 openssl x509 -in "$1" -subject -noout -nameopt multiline,utf8,dump_der,dump_all,oid |grep '^[[:space:]]*[0-9]' | while read oid e str
 do
-  ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' -e 's/^\(13\|14\|16\)/0c/' |tolower| stripspace ) | ASN1wrap "30" |ASN1wrap "31" | hextochar
-done |sha1sum |sed -e 's/\(..\)\(..\)\(..\)\(..\).*/\4\3\2\1/'
+  if [ "$OLD" = "y" ]
+  then
+    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' ) | ASN1wrap "30" |ASN1wrap "31" |ASN1wrap "30" | hextochar
+  else
+    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' -e 's/^\(13\|14\|16\)/0c/' |tolower| stripspace ) | ASN1wrap "30" |ASN1wrap "31" | hextochar
+  fi
+done |digest "$OLD" |sed -e 's/\(..\)\(..\)\(..\)\(..\).*/\4\3\2\1/'
 
 
-# Oneline?
+# Oneline? -- not updated for recent changes!
 # openssl x509 -in $PATHTOCERT.pem -subject -noout -nameopt multiline,utf8,dump_der,dump_all,oid |grep '^[[:space:]]*[0-9]' | while read oid e str ; do echo -ne `( echo $oid | awk -F. '{printf("%02x",$1*40+$2);for(i=3;i<=NF;i++){a=$i;while(a>0){b=a%128;a-=b;a/=128;printf("%02x",(a>0?b+128:b));}}}' | awk '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256),l);printf(lh);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("06%s%s",lh,$1)}' ; echo "$str" | sed -e 's/#//' -e 's/^\(13\|14\|16\)/0c/' | sed -e 's/\(..\)/\1 /g' -e 's/^\(..\) \([0-7].\|80\)/\1\2/' -e 's/^\(..\) \(81\) \(..\)/\1\2\3/' -e 's/^\(..\) \(82\) \(..\) \(..\)/\1\2\3\4/' -e 's/ 4\([1-9a-fA-F]\)/6\1/ig' -e 's/5\([0-9aA]\)/7\1/ig' -e 's/ //g' | sed -e 's/\(..\)/\1 /g' -e 's/^\(..\) \([0-7].\|80\)/\1\2/' -e 's/^\(..\) \(81\) \(..\)/\1\2\3/' -e 's/^\(..\) \(82\) \(..\) \(..\)/\1\2\3\4/' -e 's/ \(20\|08\|09\|0[aA]\|0[bB]\|0[cC]\|0[dD]\|20\)/ 20/g' -e 's/\( 20\)\{2,\}/ 20/g' -e 's/^\(....\)\( 20\)\{1,\}/\1/' -e 's/\( 20\)\{1,\} *$//' -e 's/ //g' -e 's/\(..\)\(..\)/\1 \2 /' | while read type len data ; do echo $data | awk -v t="$type" '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256),l);printf(lh);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("%s%s%s",t,lh,$1)}' ; done )|awk '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256),l);printf(lh);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("30%s%s",lh,$1)}'|awk '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256),l);printf(lh);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("31%s%s",lh,$1)}' | sed -e 's/\(..\)/\\\x\\1/g'` ; done | sha1sum | sed -e 's/\(..\)\(..\)\(..\)\(..\).*/\4\3\2\1/'
 
