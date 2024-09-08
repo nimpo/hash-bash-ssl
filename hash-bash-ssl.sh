@@ -44,6 +44,8 @@ function digest() {
   fi
 }
 
+
+
 [ "$1" = "-old" ] && OLD="y" && shift
 
 # First use openssl to do most of the leg work; spit the subject out with as much BER work done for us as possible
@@ -51,11 +53,11 @@ openssl x509 -in "$1" -subject -noout -nameopt multiline,utf8,dump_der,dump_all,
 do
   if [ "$OLD" = "y" ]
   then
-    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' ) | ASN1wrap "30" |ASN1wrap "31" |ASN1wrap "30" | hextochar
+    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' ) | ASN1wrap "30" |ASN1wrap "31"
   else
-    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' -e 's/^\(13\|14\|16\)/0c/' |tolower| stripspace ) | ASN1wrap "30" |ASN1wrap "31" | hextochar
+    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' -e 's/^\(13\|14\|16\)/0c/' |tolower| stripspace ) | ASN1wrap "30" |ASN1wrap "31" 
   fi
-done |digest "$OLD" |sed -e 's/\(..\)\(..\)\(..\)\(..\).*/\4\3\2\1/'
+done | ( [ "$OLD" = "y" ] && ASN1wrap "30" || cat ) | hextochar |digest "$OLD" |sed -e 's/\(..\)\(..\)\(..\)\(..\).*/\4\3\2\1/'
 
 
 # Oneline? -- not updated for recent changes!
