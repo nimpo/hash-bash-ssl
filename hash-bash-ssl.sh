@@ -12,7 +12,7 @@
 # Written for giggles by Mike Jones mike-jones.uk
 
 function encOID () { #returns HEX BER OID e.g. echo "2.5.4.3" | encOID -> 550403
-  awk -F. '{printf("%02x",$1*40+$2);for(i=3;i<=NF;i++){a=$i;while(a>0){b=a%128;a-=b;a/=128;printf("%02x",(a>0?b+128:b));}}}'
+  awk -F. '{printf("%02x",$1*40+$2);for(i=3;i<=NF;i++){a=$i;s="";while(a>0){b=a%128;a-=b;a/=128;s=sprintf("%02x%s",(s!=""?b+128:b),s);}printf(s)}}'
 }
 
 function ASN1wrap () { # returns HEX BER ASN1Tag.ASN1Len.<stdin>; e.g. echo "550403" | ASN1wrap 06 -> 0603550403 ; 06=OID 0c=UTF8String 30=SEQUENCE 31=SET
