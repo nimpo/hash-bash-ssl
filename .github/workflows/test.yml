@@ -1,0 +1,10 @@
+name: Test It Works
+on: workflow_dispatch
+jobs:
+  first-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Check certs in testCerts
+        run: ./test.sh
