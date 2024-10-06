@@ -72,6 +72,9 @@ function getContents() { # Reads Hex String, ignores Tag (assuming Tag < 32 ie t
   }'
 }
 
+function getSubject() { # Reads in HEX string and finds Subject DN and spits out inner HEX string Assuming an X.509
+  getContents |getContents 1 |getContents 6
+}
 
 [ "$1" = "-old" ] && OLD="y" && shift
 
