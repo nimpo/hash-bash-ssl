@@ -47,6 +47,30 @@ function digest() {
   fi
 }
 
+# Function to unwrap ASN1
+function getContents() { # Reads Hex String, ignores Tag (assuming Tag < 32 ie tag header is 1 byte); figures out length of content; returns content; "$1"="" or "$1"=0 return all 
+  awk -v n="$1" -v v="$2" 'BEGIN {for(i=0;i<16;i++){x[sprintf("%x",i)]=i}}
+  {
+    s=$0;
+    m=0;
+    while ( length(s) > 0 ) {
+      m++;
+      if(x[substr(s,3,1)]>7){
+        llh=sprintf("%i",(x[substr(s,3,1)]*16)+x[substr(s,4,1)]-128);     # Length of length header contents: 3rd and 4th nibble of input & 0x01111111 converted to decimal 1-127
+        if (llh==0) {print "!! undefined length - 0000 terminated ASN1 objects, are not supported!!"}
+        lh=substr(s,5,llh*2);                                             # string length of llh in nibbles starting at 5th nibble
+        split(lh,ln,"");                                                 # split header into array of nibbles
+        for(c=1;c<=length(lh);c++) { li*=16; li+=x[ln[c]]}                # loop through nibbles as c starting with least significant: li = li<<4 + DEC-value-of-that-nibble ; Should return int of byte length
+        if(n==m||!n)print (v?substr(s,1,2):"") (v?" ":"") substr(s,1+2+2+(2*llh),li*2);   # contents start at 1 + 2(taglen) + 2(headlendesc) + (length of header in bytes) * 2
+        s=substr(s,1+2+2+(2*llh)+li*2)
+      }else{
+        li=sprintf("%i",(x[substr(s,3,1)]*16)+x[substr(s,4,1)]);
+        if(n==m||!n)print (v?substr(s,1,2):"") (v?" ":"") substr(s,5,li*2);             # TAG(2n) Lenght(2n) Then content of li*2 nibles
+        s=substr(s,1+2+2+(li*2))
+      }
+    }
+  }'
+}
 
 
 [ "$1" = "-old" ] && OLD="y" && shift
