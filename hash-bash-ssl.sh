@@ -18,6 +18,9 @@ function encOID () { #returns HEX BER OID e.g. echo "2.5.4.3" | encOID -> 550403
 function ASN1wrap () { # returns HEX BER ASN1Tag.ASN1Len.<stdin>; e.g. echo "550403" | ASN1wrap 06 -> 0603550403 ; 06=OID 0c=UTF8String 30=SEQUENCE 31=SET
   awk -v t="$1" '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256)+128,l);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("%s%s%s",t,lh,$1)}'
 }
+function ASN1wrap () { # returns HEX BER ASN1Tag.ASN1Len.<stdin>; e.g. echo "550403" | ASN1wrap 06 -> 0603550403 ; 06=OID 0c=UTF8String 30=SEQUENCE 31=SET
+  awk -v t="$1" '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256)+128,l);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("%s%s%s\n",t,lh,$1)}'
+}
 
 function tolower () { # Not sure if OSSL converts all UTF8 upper to lower (does e.g. Ĥ -> ĥ ?) but a quick eyeball of the code shows case_change to lower case is defined along the lines of: c=ifupper(c)?(c^\0x40);
                       # Also we'll ignore RDNs > 65535 bytes long (I've never come across one > 127; while one might generate such a large one, I think most clients would break.)
@@ -53,11 +56,11 @@ openssl x509 -in "$1" -subject -noout -nameopt multiline,utf8,dump_der,dump_all,
 do
   if [ "$OLD" = "y" ]
   then
-    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' ) | ASN1wrap "30" |ASN1wrap "31"
+    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' )
   else
-    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' -e 's/^\(13\|14\|16\)/0c/' |tolower| stripspace ) | ASN1wrap "30" |ASN1wrap "31" 
+    ( echo "$oid" | encOID | ASN1wrap "06" ; echo "$str" | sed -e 's/#//' -e 's/^\(13\|14\|16\)/0c/' |tolower| stripspace )
   fi
-done | ( [ "$OLD" = "y" ] && ASN1wrap "30" || cat ) | hextochar |digest "$OLD" |sed -e 's/\(..\)\(..\)\(..\)\(..\).*/\4\3\2\1/'
+done | sed '$!N;s/\n//' | ASN1wrap 30 | ASN1wrap 31 | tr -d '\n' | ( [ "$OLD" = "y" ] && ASN1wrap "30" || cat ) | hextochar |digest "$OLD" |sed -e 's/\(..\)\(..\)\(..\)\(..\).*/\4\3\2\1/'
 
 
 # Oneline? -- not updated for recent changes!
