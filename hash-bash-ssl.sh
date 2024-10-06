@@ -81,6 +81,17 @@ function getIssuer() { # Reads in HEX string and finds Subject DN and spits out 
   getContents |getContents 1 |getContents 4
 }
 
+function canonicalizeDN() {
+  getContents | getContents | getContents 0 -v| sed -e 's/\([0-9a-f]\{2\}\)/\1 /g' |awk '/^(13|14|16|0c)/ {gsub(/(08|09|0a|0b|0c|0d)/,"20"); $1="0c "; gsub (/^0c  (20 )*/,"0c  "); gsub(/(20 ?)+/,"20 "); gsub(/(20) *$/,""); print } !/^(13|14|16|0c)/ {print}' |while read tag content 
+  do 
+    if [ "$tag" = "0c" ]
+    then
+      echo $content |sed -e 's/4\([1-9a-f]\)/6\1/g' -e 's/5\([0-9a]\)/7\1/g' |tr -d ' ' | ASN1wrap $tag
+    else
+      echo $content |tr -d ' ' | ASN1wrap $tag
+    fi
+  done | sed '$!N;s/\n//' | ASN1wrap 30 | ASN1wrap 31 |tr -d '\n'
+}
 
 # First use openssl to do most of the leg work; spit the subject out with as much BER work done for us as possible
 openssl x509 -in "$1" -subject -noout -nameopt multiline,utf8,dump_der,dump_all,oid |grep '^[[:space:]]*[0-9]' | while read oid e str
