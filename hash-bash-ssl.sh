@@ -76,7 +76,6 @@ function getSubject() { # Reads in HEX string and finds Subject DN and spits out
   getContents |getContents 1 |getContents 6
 }
 
-[ "$1" = "-old" ] && OLD="y" && shift
 function getIssuer() { # Reads in HEX string and finds Subject DN and spits out inner HEX string Assuming an X.509
   getContents |getContents 1 |getContents 4
 }
@@ -93,6 +92,12 @@ function canonicalizeDN() {
   done | sed '$!N;s/\n//' | ASN1wrap 30 | ASN1wrap 31 |tr -d '\n'
 }
 
+# Function to turn PEM into DER
+function getDERfromPEM () { #Returns HEX encoded DER of first PEM Certificate in file 
+  awk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w0 -tx1 2>/dev/null |grep '^[0-9a-f ]*$' |tr -d "\n "
+}
+
+[ "$1" = "-old" ] && OLD="y" && shift
 # First use openssl to do most of the leg work; spit the subject out with as much BER work done for us as possible
 openssl x509 -in "$1" -subject -noout -nameopt multiline,utf8,dump_der,dump_all,oid |grep '^[[:space:]]*[0-9]' | while read oid e str
 do
