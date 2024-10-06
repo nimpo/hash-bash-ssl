@@ -77,6 +77,10 @@ function getSubject() { # Reads in HEX string and finds Subject DN and spits out
 }
 
 [ "$1" = "-old" ] && OLD="y" && shift
+function getIssuer() { # Reads in HEX string and finds Subject DN and spits out inner HEX string Assuming an X.509
+  getContents |getContents 1 |getContents 4
+}
+
 
 # First use openssl to do most of the leg work; spit the subject out with as much BER work done for us as possible
 openssl x509 -in "$1" -subject -noout -nameopt multiline,utf8,dump_der,dump_all,oid |grep '^[[:space:]]*[0-9]' | while read oid e str
