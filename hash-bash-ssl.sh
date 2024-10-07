@@ -60,6 +60,7 @@ function getContents() { # Reads Hex String, ignores Tag (assuming Tag < 32 ie t
         if (llh==0) {print "!! undefined length - 0000 terminated ASN1 objects, are not supported!!"}
         lh=substr(s,5,llh*2);                                             # string length of llh in nibbles starting at 5th nibble
         split(lh,ln,"");                                                 # split header into array of nibbles
+        li=0
         for(c=1;c<=length(lh);c++) { li*=16; li+=x[ln[c]]}                # loop through nibbles as c starting with least significant: li = li<<4 + DEC-value-of-that-nibble ; Should return int of byte length
         if(n==m||!n)print (v?substr(s,1,2):"") (v?" ":"") substr(s,1+2+2+(2*llh),li*2);   # contents start at 1 + 2(taglen) + 2(headlendesc) + (length of header in bytes) * 2
         s=substr(s,1+2+2+(2*llh)+li*2)
