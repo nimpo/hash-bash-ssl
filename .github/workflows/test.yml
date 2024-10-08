@@ -1,7 +1,7 @@
 name: Test It Works
 on: [push, workflow_dispatch]
 jobs:
-  first-job:
+  compare-to-openssl:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
