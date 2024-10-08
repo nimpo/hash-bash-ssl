@@ -74,11 +74,11 @@ function getContents() { # Reads Hex String, ignores Tag (assuming Tag < 32 ie t
 }
 
 function getSubject() { # Reads in HEX string and finds Subject DN and spits out inner HEX string Assuming an X.509
-  getContents |getContents 1 |getContents 6
+  getContents |getContents 1 | sed -e 's/a003020102//' |getContents 5
 }
 
 function getIssuer() { # Reads in HEX string and finds Subject DN and spits out inner HEX string Assuming an X.509
-  getContents |getContents 1 |getContents 4
+  getContents |getContents 1 | sed -e 's/a003020102//' |getContents 3
 }
 
 function canonicalizeDN() {
