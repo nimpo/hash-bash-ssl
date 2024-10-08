@@ -7,6 +7,11 @@ do
   HASHBASHSSL=`./hash-bash-ssl.sh $CERT 2>/dev/null`
   MSG="[ FAIL ]"
   [ "$HASHBASHSSL" -a "$OPENSSLHASH" = "$HASHBASHSSL" ] && MSG="[  OK  ]" || TEST=1
-  printf "%-40s %8s == %8s %s\n" "$CERT" "$OPENSSLHASH" "$HASHBASHSSL" "$MSG"
+  printf "NEW %-40s %8s == %8s %s\n" "$CERT" "$OPENSSLHASH" "$HASHBASHSSL" "$MSG"
+  OPENSSLHASH=`openssl x509 -in $CERT -noout -subject_hash_old 2>/dev/null`
+  HASHBASHSSL=`./hash-bash-ssl.sh -old $CERT 2>/dev/null`
+  MSG="[ FAIL ]"
+  [ "$HASHBASHSSL" -a "$OPENSSLHASH" = "$HASHBASHSSL" ] && MSG="[  OK  ]" || TEST=1
+  printf "OLD %-40s %8s == %8s %s\n" "$CERT" "$OPENSSLHASH" "$HASHBASHSSL" "$MSG"
 done
 exit $TEST
