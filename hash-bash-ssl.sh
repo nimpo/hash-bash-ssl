@@ -82,7 +82,7 @@ function getIssuer() { # Reads in HEX string and finds Subject DN and spits out 
 }
 
 function canonicalizeDN() {
-  getContents | getContents | getContents 0 -v| sed -e 's/\([0-9a-f]\{2\}\)/\1 /g' |awk '/^(13|14|16|0c)/ {gsub(/(08|09|0a|0b|0c|0d)/,"20"); $1="0c "; gsub (/^0c  (20 )*/,"0c  "); gsub(/(20 ?)+/,"20 "); gsub(/(20) *$/,""); print } !/^(13|14|16|0c)/ {print}' |while read tag content 
+  getContents | getContents | getContents 0 -v| sed -e 's/\([0-9a-f]\{2\}\)/\1 /g' |awk '/^(13|14|16|0c)/ {gsub(/(09|0a|0b|0c|0d)/,"20"); $1="0c "; gsub (/^0c  (20 )*/,"0c  "); gsub(/(20 ?)+/,"20 "); gsub(/(20) *$/,""); print } !/^(13|14|16|0c)/ {print}' |while read tag content 
   do 
     if [ "$tag" = "0c" ]
     then
