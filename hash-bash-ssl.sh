@@ -2,7 +2,7 @@
 
 # BASH-ish way to get new (for old values of new) OpenSSL sha1-based subject name hash. This code should produce the same as current
 # openssl <$1> x509 -noout -hash
-# Here I'm using GNU's sed and awk mileage with other awks ans seds may vary
+# Here I'm using GNU's sed and awk mileage with other awks and seds may vary
 
 # Some notes: The "hash" is essentially a dump of the certificate's DER encoded subjectname SEQUENCE with the following modifications:
 # 1, the leading SEQUENCE header is stripped that's the first \x30\xXX((\xXX>7e?\xYY{\xXX}:"") i.e. between 2 and 258 bytes.
