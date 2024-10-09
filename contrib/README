@@ -1,0 +1,4 @@
+Files here are not necessary for the running of hash-bash-ssl or its tests.
+They are scripts that I created/borrowed/modified to generate test certificates included in ../testCerts/
+
+They are included for your reading pleasure.
