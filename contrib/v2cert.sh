@@ -114,7 +114,7 @@ v=PRINTABLESTRING:Colin the Security Robot
 rdn=SEQUENCE:email
 
 [email]
-o=OID:commonName
+o=OID:emailAddress
 v=IA5STRING:colin@mike-jones.uk
 
 [validity]
