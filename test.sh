@@ -74,10 +74,15 @@ echo "Full Extract to DER hex"
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w999999 -tx1 |tr -d "\n "
 echo
 
-env
+#env
+#
+#echo Pipes are Lines are truncating at 1024 what is the config
+#getconf -a 
 
-echo Pipes are Lines are truncating at 1024 what is the config
-getconf -a 
+dd bs=512 count=1 if=/dev/zero  | wc
+dd bs=1024 count=1 if=/dev/zero  | wc
+dd bs=2048 count=1 if=/dev/zero  | wc
+dd bs=4096 count=1 if=/dev/zero  | wc
 
 echo END
 
