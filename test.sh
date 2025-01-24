@@ -67,8 +67,12 @@ echo
 echo "Now remove CRLFs"
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n'
 echo
+echo Try someting else
+
+cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' 
+
 echo check lengths before removal of '\r\n' then after
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |wc
+cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |wc 
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |wc
 echo 
 echo 'echo "test base64 decode" | base64 | base64 -d == "test base64 decode"'
