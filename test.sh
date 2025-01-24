@@ -71,7 +71,7 @@ echo extract PEM from cert
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }'
 echo
 echo "Now base64d it"
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' |base64 -d | od -tx1 -An -w99999999 |sed -e 's/\(.\{12\}\)/\1\n/g'
+cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' |base64 -d | od -tx1 -An -w99999999 |tr -d ' ' |sed -e 's/\(.\{12\}\)/\1\n/g'
 echo
 
 
