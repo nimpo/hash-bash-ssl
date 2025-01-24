@@ -66,6 +66,7 @@ cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Z
 echo
 echo "Now remove CRLFs"
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n'
+echo
 echo check lengths before removal of '\r\n' then after
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |wc
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |wc
