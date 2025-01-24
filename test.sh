@@ -55,10 +55,13 @@ echo 'echo "a003020101" | getContents == 020101'
 echo "a003020101" | getContents
 
 echo "Test openssl DER creation with getDERfromPEM"
+echo -n "Test openssl: "
 openssl x509 -outform DER -in testCerts/utf8_only.pem |od -tx1 |sed -e 's/[0-9]\{7\}//' |tr -d ' \n'
 echo
+echo -n "Test getDERfromPEM: "
 cat testCerts/utf8_only.pem | getDERfromPEM
 echo
+echo END
 
 
 
