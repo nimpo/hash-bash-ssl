@@ -67,9 +67,9 @@ echo
 echo "Now remove CRLFs"
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n'
 echo
-echo Try someting else
+echo Try someting to see if full cert is extracted
 
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' 
+cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' |base64 -d | od -tx1
 
 echo check lengths before removal of '\r\n' then after
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |wc 
