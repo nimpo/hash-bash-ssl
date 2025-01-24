@@ -30,4 +30,29 @@ do
   [ "$HASHBASHSSL" -a "$OPENSSLHASH" = "$HASHBASHSSL" ] && MSG="[  OK  ]" || TEST=1
   printf "ISSUER  OLD %-40s %8s == %8s %s\n" "$CERT" "$OPENSSLHASH" "$HASHBASHSSL" "$MSG"
 done
+
+echo "Test by source"
+
+. hash-bash-ssl.sh
+
+echo 'echo "2.5.4.3" | encOID == 550403'
+echo  "2.5.4.3" | encOID
+
+echo 'echo "550403" | ASN1wrap 06 == 0603550403'
+echo "550403" | ASN1wrap 06
+
+echo 'echo "0c0d4d696b652d4a6f6e65732e756B" | tolower == 0c0d6d696b652d6a6f6e65732e756B'
+echo "0c0d4d696b652d4a6f6e65732e756B" | tolower
+
+echo 'echo "20205465737409206f662008207374726970737061636520" | stripspace == 54657374206f662073747269707370616365'
+echo "20205465737409206f662008207374726970737061636520" | stripspace
+
+echo 'echo 54657374206f6620686578746f63686172 | hextochar == "Test of hextochar"'
+echo "54657374206f6620686578746f63686172" | hextochar
+
+echo 'echo "a003020101" | getContents == 020101'
+echo "a003020101" | getContents
+
+
+
 exit $TEST
