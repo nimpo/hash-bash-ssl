@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 TEST=0
+
+gawk --version
+sed --version
+md5sum --version
+sha1sum --version
+
 for CERT in testCerts/*.pem 
 do 
   OPENSSLHASH=`openssl x509 -in $CERT -noout -subject_hash # 2>/dev/null`
