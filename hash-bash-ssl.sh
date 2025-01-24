@@ -12,11 +12,11 @@
 # Written for giggles by Mike Jones mike-jones.uk
 
 function encOID () { #returns HEX BER OID e.g. echo "2.5.4.3" | encOID -> 550403
-  awk -F. '{printf("%02x",$1*40+$2);for(i=3;i<=NF;i++){a=$i;s="";while(a>0){b=a%128;a-=b;a/=128;s=sprintf("%02x%s",(s!=""?b+128:b),s);}printf(s)}}'
+  gawk -F. '{printf("%02x",$1*40+$2);for(i=3;i<=NF;i++){a=$i;s="";while(a>0){b=a%128;a-=b;a/=128;s=sprintf("%02x%s",(s!=""?b+128:b),s);}printf(s)}}'
 }
 
 function ASN1wrap () { # returns HEX BER ASN1Tag.ASN1Len.<stdin>; e.g. echo "550403" | ASN1wrap 06 -> 0603550403 ; 06=OID 0c=UTF8String 30=SEQUENCE 31=SET
-  awk -v t="$1" '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256)+128,l);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("%s%s%s\n",t,lh,$1)}'
+  gawk -v t="$1" '{l=length($1)/2;if(l<128){lh=sprintf("%02x",l)}else{lh=sprintf("%02x%x",int((l+256)/256)+128,l);if(length(lh)%2==1)sub(/^../,"&0",lh)}printf("%s%s%s\n",t,lh,$1)}'
 }
 
 function tolower () { # Not sure if OSSL converts all UTF8 upper to lower (does e.g. Ĥ -> ĥ ?) but a quick eyeball of the code shows case_change to lower case is defined along the lines of: c=ifupper(c)?(c^\0x40);
@@ -49,7 +49,7 @@ function getContents() { # Reads Hex String which may be one or more chunks: {he
                          # Discards headers; assumes Tags < 32 ie tag header is 1 byte; figures out length of body/ies
                          # returns nth (${1}th) body of content unless "$1"="" or "$1"=0, where it returns all chunks separated by \n
                          # e.g. "a003020101" -> "020101" unless $2 is specified: if $2 != "" or 0 then the header's tag is included in the responce e.g. "a003020101" -> "a0 020101"
-  awk -v n="$1" -v v="$2" 'BEGIN {for(i=0;i<16;i++){x[sprintf("%x",i)]=i}}
+  gawk -v n="$1" -v v="$2" 'BEGIN {for(i=0;i<16;i++){x[sprintf("%x",i)]=i}}
   {
     s=$0;
     m=0;
@@ -82,7 +82,7 @@ function getIssuer() { # Reads in HEX string and finds Subject DN and spits out 
 }
 
 function canonicalizeDN() {
-  getContents | getContents | getContents 0 -v| sed -e 's/\([0-9a-f]\{2\}\)/\1 /g' |awk '/^(13|14|16|0c)/ {gsub(/(09|0a|0b|0c|0d)/,"20"); $1="0c "; gsub (/^0c  (20 )*/,"0c  "); gsub(/(20 ?)+/,"20 "); gsub(/(20) *$/,""); print } !/^(13|14|16|0c)/ {print}' |while read tag content 
+  getContents | getContents | getContents 0 -v| sed -e 's/\([0-9a-f]\{2\}\)/\1 /g' |gawk '/^(13|14|16|0c)/ {gsub(/(09|0a|0b|0c|0d)/,"20"); $1="0c "; gsub (/^0c  (20 )*/,"0c  "); gsub(/(20 ?)+/,"20 "); gsub(/(20) *$/,""); print } !/^(13|14|16|0c)/ {print}' |while read tag content 
   do 
     if [ "$tag" = "0c" ]
     then
@@ -95,7 +95,7 @@ function canonicalizeDN() {
 
 # Function to turn PEM into DER
 function getDERfromPEM () { #Returns HEX encoded DER of first PEM Certificate in file 
-  awk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w0 -tx1 2>/dev/null |grep '^[0-9a-f ]*$' |tr -d "\n "
+  gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w0 -tx1 2>/dev/null |grep '^[0-9a-f ]*$' |tr -d "\n "
 }
 
 declare -a PEMS

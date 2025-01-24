@@ -2,7 +2,7 @@ name: Test It Works
 on: [push, workflow_dispatch]
 jobs:
   compare-to-openssl:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Get code
         uses: actions/checkout@v4
