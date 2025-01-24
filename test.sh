@@ -76,6 +76,9 @@ echo
 
 env
 
+echo Pipes are Lines are truncating at 1024 what is the config
+getconf -a 
+
 echo END
 
 
