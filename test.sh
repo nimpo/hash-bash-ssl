@@ -49,9 +49,17 @@ echo "20205465737409206f662008207374726970737061636520" | stripspace
 
 echo 'echo 54657374206f6620686578746f63686172 | hextochar == "Test of hextochar"'
 echo "54657374206f6620686578746f63686172" | hextochar
+echo
 
 echo 'echo "a003020101" | getContents == 020101'
 echo "a003020101" | getContents
+
+echo "Test openssl DER creation with getDERfromPEM"
+openssl x509 -outform DER -in testCerts/utf8_only.pem |od -tx1 |sed -e 's/[0-9]\{7\}//' |tr -d ' \n'
+echo
+cat testCerts/utf8_only.pem | getDERfromPEM
+echo
+
 
 
 
