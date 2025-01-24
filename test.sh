@@ -73,9 +73,9 @@ echo
 echo "Now base64d it"
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' |base64 -d | od -tx1 -An -w99999999 |tr -d ' ' | getSubject
 echo
+echo again old
 
-
-
+cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w0 -tx1 2>/dev/null |grep '^[0-9a-f ]*$' |tr -d "\n " |greSubject
 
 
 exit 1
@@ -93,6 +93,8 @@ echo "test base64 decode" | base64 | base64 -d
 echo "Full Extract to DER hex"
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w999999 -tx1 |tr -d "\n "
 echo
+
+
 
 #env
 #
