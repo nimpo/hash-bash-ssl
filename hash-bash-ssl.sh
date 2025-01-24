@@ -27,7 +27,7 @@ function tolower () { # Not sure if OSSL converts all UTF8 upper to lower (does 
 
 function stripspace () { # Remove leading and trailingspace; convert and deduplicate duplicate remaining spaces to \x20
                          # OSSL defines these as "CTYPE_MASK_space"= {\t\n\v\f\r\x20} + {\b} :- 08 09 0a 0b 0c 0d 20
-  sed -e 's/\(..\)/\1 /g' -e 's/^\(..\) \([0-7].\|80\)/\1\2/' -e 's/^\(..\) \(81\) \(..\)/\1\2\3/' -e 's/^\(..\) \(82\) \(..\) \(..\)/\1\2\3\4/' -e 's/ \(20\|08\|09\|0[aA]\|0[bB]\|0[cC]\|0[dD]\|20\)/ 20/g' -e 's/\( 20\)\{2,\}/ 20/g' -e 's/^\(..[0-7].\|..80\|..81..\|..82....\)\( 20\)\{1,\}/\1/' -e 's/\( 20\)\{1,\} *$//' -e 's/ //g' -e 's/^\(..\)\([0-7].\|80\|81..\|82....\)/\1 \2 /' | while read type len data ; do echo $data | ASN1wrap $type ; done
+  sed -e 's/\(..\)/\1 /g' -e 's/^\(..\) \([0-7].\|80\)/\1\2/' -e 's/^\(..\) \(81\) \(..\)/\1\2\3/' -e 's/^\(..\) \(82\) \(..\) \(..\)/\1\2\3\4/' -e 's/ \(08\|09\|0[aA]\|0[bB]\|0[cC]\|0[dD]\|20\)/ 20/g' -e 's/\( 20\)\{2,\}/ 20/g' -e 's/^\(..[0-7].\|..80\|..81..\|..82....\)\( 20\)\{1,\}/\1/' -e 's/\( 20\)\{1,\} *$//' -e 's/ //g' -e 's/^\(..\)\([0-7].\|80\|81..\|82....\)/\1 \2 /' | while read type len data ; do echo $data | ASN1wrap $type ; done
 }
 
 function hextochar () {
@@ -45,7 +45,10 @@ function digest() {
 }
 
 # Function to unwrap ASN1
-function getContents() { # Reads Hex String, ignores Tag (assuming Tag < 32 ie tag header is 1 byte); figures out length of content; returns content; "$1"="" or "$1"=0 return all 
+function getContents() { # Reads Hex String which may be one or more chunks: {header,length,body} or {header,lenght,body;header,length,body},
+                         # Discards headers; assumes Tags < 32 ie tag header is 1 byte; figures out length of body/ies
+                         # returns nth (${1}th) body of content unless "$1"="" or "$1"=0, where it returns all chunks separated by \n
+                         # e.g. "a003020101" -> "020101" unless $2 is specified: if $2 != "" or 0 then the header's tag is included in the responce e.g. "a003020101" -> "a0 020101"
   awk -v n="$1" -v v="$2" 'BEGIN {for(i=0;i<16;i++){x[sprintf("%x",i)]=i}}
   {
     s=$0;
