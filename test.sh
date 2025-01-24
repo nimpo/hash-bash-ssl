@@ -75,7 +75,7 @@ cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Z
 echo
 echo again old
 
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w0 -tx1 2>/dev/null |grep '^[0-9a-f ]*$' |tr -d "\n " |greSubject
+cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w0 -tx1 2>/dev/null |grep '^[0-9a-f ]*$' |tr -d "\n " |getSubject
 
 
 exit 1
