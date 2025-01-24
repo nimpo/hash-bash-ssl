@@ -60,9 +60,9 @@ openssl x509 -outform DER -in testCerts/utf8_only.pem |od -tx1 |sed -e 's/[0-9]\
 
 echo becomes:
 
-openssl x509 -outform DER -in testCerts/utf8_only.pem |od -An -tx1 -w9999999 |sed -e 's/ //g'
-echo then: 
-openssl x509 -outform DER -in testCerts/utf8_only.pem |od -An -tx1 -w9999999
+openssl x509 -outform DER -in testCerts/utf8_only.pem |od -An -tx1 -w9999999 |sed -e 's/ //g' |wc
+echo then:  
+openssl x509 -outform DER -in testCerts/utf8_only.pem |od -An -tx1 -w9999999 |wc
 echo
 echo -n "Test getDERfromPEM: "
 cat testCerts/utf8_only.pem | getDERfromPEM
