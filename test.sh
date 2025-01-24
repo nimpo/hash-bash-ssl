@@ -54,57 +54,11 @@ echo
 echo 'echo "a003020101" | getContents == 020101'
 echo "a003020101" | getContents
 
-echo "Test openssl DER creation with getDERfromPEM"
-echo -n "Test openssl: "
-openssl x509 -outform DER -in testCerts/utf8_only.pem |od -tx1 |sed -e 's/[0-9]\{7\}//'
+echo "getDERfromPEM testCerts/utf8_only.pem and extract subject"
+echo "Should see: "
+echo "3112301006035504080c094775696c64666f72643130302e06035504070c27536f6d65776865726520696e2074686520766963696e697479206f6620426574656c676575736531273025060355040a0c1e5369726975732043796265726e657469637320436f72706f726174696f6e311d301b060355040b0c144d61726b6574696e67204465706172746d656e743121301f06035504030c18436f6c696e2074686520536563757269747920526f626f74"
 
-echo becomes:
-
-openssl x509 -outform DER -in testCerts/utf8_only.pem |od -An -tx1 -w9999999 |sed -e 's/ //g' |wc
-echo then:  
-openssl x509 -outform DER -in testCerts/utf8_only.pem |od -An -tx1 -w9999999 |wc
-echo
-echo -n "Test getDERfromPEM: "
-cat testCerts/utf8_only.pem | getDERfromPEM
-echo
-echo extract PEM from cert
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }'
-echo
-echo "Now base64d it"
 cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' |base64 -d | od -tx1 -An -w99999999 |tr -d ' ' | getSubject
-echo
-echo again old
-
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w0 -tx1 2>/dev/null |grep '^[0-9a-f ]*$' |tr -d "\n " |getSubject
-
-
-exit 1
-echo Try someting to see if full cert is extracted
-
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) printf("%s",$0) } /-----END CERTIFICATE-----/ {exit }' |base64 -d | od -tx1 -An -tx1 -w99999999 |tr -d " "
-
-echo check lengths before removal of '\r\n' then after
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |wc 
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |wc
-echo 
-echo 'echo "test base64 decode" | base64 | base64 -d == "test base64 decode"'
-echo "test base64 decode" | base64 | base64 -d 
-
-echo "Full Extract to DER hex"
-cat testCerts/utf8_only.pem | gawk '/^-----BEGIN CERTIFICATE-----$/ {i=1} /^[A-Za-z0-9\/+=]+\r?$/ { if(i) print } /-----END CERTIFICATE-----/ {exit }' |tr -d '\r\n' |base64 -d |od -An -v -w999999 -tx1 |tr -d "\n "
-echo
-
-
-
-#env
-#
-#echo Pipes are Lines are truncating at 1024 what is the config
-#getconf -a 
-
-dd bs=512 count=1 if=/dev/zero  | wc
-dd bs=1024 count=1 if=/dev/zero  | wc
-dd bs=2048 count=1 if=/dev/zero  | wc
-dd bs=4096 count=1 if=/dev/zero  | wc
 
 echo END
 
